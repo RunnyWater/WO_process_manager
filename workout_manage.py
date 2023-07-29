@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import os
 
 # You can change it to yours XCL file, if it has the same structure, as does this, it will work as good as it normally does
-link_to_xcl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTOZPXrV1XqR344xWaWpbfYz72eh_rLH1U1qWWClyy6yI246H9tC_24JBr2Z6hoVrJWTNJuaqE_bxmN/pub?output=xlsx'
+link_to_xcl = 'https://docs.google.com/spreadsheets/d/1b0plqR5RodygHOkzW2pEYDcle3SSPAS-0mcqIkvEljg/edit?usp=sharing'
 xcl = pd.ExcelFile(link_to_xcl)
 
 

@@ -7,4 +7,5 @@
 <br><p>The result will be something like that</p>
 <div><img src="docs/result_example.png" alt="result_example"></div>
 <p><br><br>Work still in progress!</p>
+<p>Feel free to use it or to help me with your ideas!<br>If you want to support me as a developer you can do so by giving your honest opinion on the project and opinion how to make my project better<br>I appreciate all the support</p>
 

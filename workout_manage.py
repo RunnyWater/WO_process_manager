@@ -17,20 +17,19 @@ def dialog_window():
         # print("5.Update if needed an update (doesn't work rn)")
         print("q.Quit to save the changes")
         update_number = input(">> ")
-        if update_number.isnumeric and int(update_number) <= xcl.sheet_names.length and int(update_number)>=0:
+        if update_number.lower() == "q":
+            print("quit\n")
+            break
+        elif update_number.isnumeric() and len(xcl.sheet_names) >= int(update_number) >= 0:
             if int(update_number) == 0:
                 for num, sheet in enumerate(xcl.sheet_names):
                     update_workout(sheet)
-                    print(f'{num} Day Updated')
+                    print(f'{num+1} Day Updated')
             else:
                 update_workout(xcl.sheet_names[int(update_number)-1])
                 print(f'\"{xcl.sheet_names[int(update_number)-1]}\" Day Updated')
-        elif update_number.lower() == "q":
-                print("quit\n")
-                break
         else:
             print("wrong input\n")
-
 
 def update_workout(wo_type):
     day = pd.read_excel(xcl, wo_type)

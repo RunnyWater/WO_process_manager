@@ -2,9 +2,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 
+
 # You can change it to yours XCL file, if it has the same structure, as does this, it will work as good as it normally does
-link_to_xcl = 'https://docs.google.com/spreadsheets/d/1b0plqR5RodygHOkzW2pEYDcle3SSPAS-0mcqIkvEljg/edit?usp=sharing'
-xcl = pd.ExcelFile(link_to_xcl)
+file_url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTOZPXrV1XqR344xWaWpbfYz72eh_rLH1U1qWWClyy6yI246H9tC_24JBr2Z6hoVrJWTNJuaqE_bxmN/pub?output=xlsx'
+xcl = pd.ExcelFile(file_url, engine='openpyxl')
 
 
 def dialog_window():
@@ -30,6 +31,7 @@ def dialog_window():
                 print(f'\"{xcl.sheet_names[int(update_number)-1]}\" Day Updated')
         else:
             print("wrong input\n")
+
 
 def update_workout(wo_type):
     day = pd.read_excel(xcl, wo_type)
@@ -75,9 +77,14 @@ def saving_figure(height, wo_type):
 
             fig.legend(labels=keys_list, loc='upper left', fontsize='medium', ncols=1)
         try:
-            os.path.exists(os.path.join(os.path.dirname(__file__), "figures"))
-        except OSError:
             os.mkdir(os.path.join(os.path.dirname(__file__), "figures"))
+        except OSError:
+            try:
+                plt.savefig(f'figures/{wo_type}/{exercise[0]}.png')
+            except OSError:
+                os.mkdir(f'figures/{wo_type}')
+            finally:
+                plt.savefig(f'figures/{wo_type}/{exercise[0]}.png')
         finally:
             try:
                 plt.savefig(f'figures/{wo_type}/{exercise[0]}.png')

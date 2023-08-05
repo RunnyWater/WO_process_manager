@@ -44,9 +44,16 @@ def redirection(wo_type, height):
     for start, column_name in enumerate(wo_type.columns):
         if "Unnamed" not in column_name and column_name != "weight":
             height.update({column_name: {}})
+            final = find_final(start, wo_type)
             for rows in range(len(wo_type.index)):
-                height[column_name].update({wo_type.values[rows][0]: count_kgs_together(wo_type, rows, start, start+4)})
+                height[column_name].update({wo_type.values[rows][0]: count_kgs_together(wo_type, rows, start, final)})
     return height
+
+
+def find_final(start, wo_type):
+    for final, column_name in enumerate(wo_type.columns):
+        if final > start and "Unnamed" not in column_name:
+            return final
 
 
 def count_kgs_together(wo_type, row, start_cell, end_cell):
@@ -71,22 +78,25 @@ def saving_figure(height, wo_type):
         os.mkdir(sub_dir)
     width = 0.8
     colors = [f'C{i}' for i in range(len(pd.read_excel(xcl, wo_type).index))]
-    for exercise in height.items():
-        fig, (ax1, ax2, ax3, ax4) = plt.subplots(1, 4, figsize=(20, 10))
-        date_and_reps = exercise[1]
+    for exercise_name, date_and_reps in height.items():
+        num_sets = len(next(iter(date_and_reps.values())))
+        fig, axs = plt.subplots(1, num_sets, figsize=(5 * num_sets, 10))
+
+        if num_sets == 1:
+            axs = [axs]
+
         keys_list = list(date_and_reps.keys())
 
-        for i, d in enumerate(date_and_reps.values()):
-            for j, ax in enumerate([ax1, ax2, ax3, ax4]):
-                bar_data = [d[j]]
-                ax.bar(i, bar_data, color=colors[i], edgecolor='white', width=width)
-                for k, v in enumerate(bar_data):
-                    ax.text(i, v + 1, str(v), ha='center', va='bottom')
-                    ax.set_title(f'set: {j}')
+        for i, reps in enumerate(date_and_reps.values()):
+            for j in range(num_sets):
+                bar_data = [reps[j]]
+                axs[j].bar(i, bar_data, color=colors[i], edgecolor='white', width=width)
+                for v in bar_data:
+                    axs[j].text(i, v + 1, str(v), ha='center', va='bottom')
+                axs[j].set_title(f'set: {j + 1}')  # add 1 to set number for 1-based indexing
 
-            fig.legend(labels=keys_list, loc='upper left', fontsize='medium', ncols=1)
-
-        plt.savefig(os.path.join(sub_dir, f'{exercise[0]}.png'))
+        fig.legend(labels=keys_list, loc='upper left', fontsize='medium', ncols=1)
+        plt.savefig(os.path.join(sub_dir, f'{exercise_name}.png'))
         plt.close()
 
 

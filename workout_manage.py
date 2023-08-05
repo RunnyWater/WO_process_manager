@@ -13,8 +13,8 @@ def dialog_window():
     while True:
         print("\nWhat do I need to do?:")
         print("0.Update all days")
-        for num, sheet in enumerate(xcl.sheet_names):
-            print(f"{num + 1}.Update {num + 1} day ({sheet})")
+        for num, wo_type in enumerate(xcl.sheet_names):
+            print(f"{num + 1}.Update {num + 1} day ({wo_type})")
         # print("5.Update if needed an update (doesn't work rn)")
         print("q.Quit to save the changes")
         update_number = input(">> ")
@@ -23,9 +23,9 @@ def dialog_window():
             break
         elif update_number.isnumeric() and len(xcl.sheet_names) >= int(update_number) >= 0:
             if int(update_number) == 0:
-                for num, sheet in enumerate(xcl.sheet_names):
-                    update_workout(sheet)
-                    print(f'{num+1} Day Updated')
+                for num, wo_type in enumerate(xcl.sheet_names):
+                    update_workout(wo_type)
+                    print(f'"{wo_type}" Day Updated')
             else:
                 update_workout(xcl.sheet_names[int(update_number)-1])
                 print(f'\"{xcl.sheet_names[int(update_number)-1]}\" Day Updated')
@@ -40,20 +40,20 @@ def update_workout(wo_type):
     saving_figure(height, wo_type)
 
 
-def redirection(sheet, height):
-    for start, column_name in enumerate(sheet.columns):
+def redirection(wo_type, height):
+    for start, column_name in enumerate(wo_type.columns):
         if "Unnamed" not in column_name and column_name != "weight":
             height.update({column_name: {}})
-            for rows in range(len(sheet.index)):
-                height[column_name].update({sheet.values[rows][0]: count_kgs_together(sheet, rows, start, start + 4)})
+            for rows in range(len(wo_type.index)):
+                height[column_name].update({wo_type.values[rows][0]: count_kgs_together(wo_type, rows, start, start+4)})
     return height
 
 
-def count_kgs_together(sheet, row, start_cell, end_cell):
+def count_kgs_together(wo_type, row, start_cell, end_cell):
     array_of_equations = []
     array = []
     for x in range(start_cell, end_cell):
-        array_of_equations.append(sheet.values[row][x])
+        array_of_equations.append(wo_type.values[row][x])
     for equation in array_of_equations:
         parts = equation.split('*')
         numbers = [float(part) for part in parts]
@@ -62,37 +62,31 @@ def count_kgs_together(sheet, row, start_cell, end_cell):
 
 
 def saving_figure(height, wo_type):
+    folder_name = 'figures'
+    main_dir = os.path.join(os.path.dirname(__file__), folder_name)
+    if not os.path.exists(main_dir):
+        os.mkdir(main_dir)
+    sub_dir = os.path.join(main_dir, wo_type)
+    if not os.path.exists(sub_dir):
+        os.mkdir(sub_dir)
     width = 0.8
+    colors = [f'C{i}' for i in range(len(pd.read_excel(xcl, wo_type).index))]
     for exercise in height.items():
-        date_and_reps = exercise[1]
         fig, (ax1, ax2, ax3, ax4) = plt.subplots(1, 4, figsize=(20, 10))
+        date_and_reps = exercise[1]
         keys_list = list(date_and_reps.keys())
+
         for i, d in enumerate(date_and_reps.values()):
             for j, ax in enumerate([ax1, ax2, ax3, ax4]):
                 bar_data = [d[j]]
-                ax.bar(i, bar_data, color=f'C{i}', edgecolor='white', width=width)
+                ax.bar(i, bar_data, color=colors[i], edgecolor='white', width=width)
                 for k, v in enumerate(bar_data):
                     ax.text(i, v + 1, str(v), ha='center', va='bottom')
                     ax.set_title(f'set: {j}')
 
             fig.legend(labels=keys_list, loc='upper left', fontsize='medium', ncols=1)
-        try:
-            os.mkdir(os.path.join(os.path.dirname(__file__), "figures"))
-        except OSError:
-            try:
-                plt.savefig(f'figures/{wo_type}/{exercise[0]}.png')
-            except OSError:
-                os.mkdir(f'figures/{wo_type}')
-            finally:
-                plt.savefig(f'figures/{wo_type}/{exercise[0]}.png')
-        finally:
-            try:
-                plt.savefig(f'figures/{wo_type}/{exercise[0]}.png')
-            except OSError:
-                os.mkdir(f'figures/{wo_type}')
-            finally:
-                plt.savefig(f'figures/{wo_type}/{exercise[0]}.png')
 
+        plt.savefig(os.path.join(sub_dir, f'{exercise[0]}.png'))
         plt.close()
 
 
